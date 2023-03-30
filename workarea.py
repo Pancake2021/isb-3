@@ -32,6 +32,7 @@
 
 import os
 from cryptography.hazmat.primitives.asymmetric import rsa
+from cryptography.hazmat.primitives import serialization
 
 
 
@@ -51,4 +52,28 @@ def key_generation_func(symmetric_key_path: str, public_key_path: str, secret_ke
         private_key = keys
         public_key = keys.public_key()
 
+        
+        # сериализация открытого ключа в файл
+        public_pem = public_key_path + '\\key.pem'
+        with open(public_pem, 'wb') as public_out:
+            public_out.write(public_key.public_bytes(encoding=serialization.Encoding.PEM,
+                                                     format=serialization.PublicFormat.SubjectPublicKeyInfo))
+
+        # сериализация закрытого ключа в файл
+        private_pem = secret_key_path + '\\key.pem'
+        with open(private_pem, 'wb') as private_out:
+            private_out.write(private_key.private_bytes(encoding=serialization.Encoding.PEM,
+                                                        format=serialization.PrivateFormat.TraditionalOpenSSL,
+                                                        encryption_algorithm=serialization.NoEncryption()))
+        
+        # шифрование симметричного ключа открытым ключом при помощи RSA-OAEP
+        encrypted_symmetric_key = public_key.encrypt(symmetric_key,
+                                                    padding.OAEP(mgf=padding.MGF1(algorithm=hashes.SHA256()),
+                                                                algorithm=hashes.SHA256(),
+                                                                label=None))
+        
+        # сериализация ключа симмеричного алгоритма в файл
+        symmetric_file = symmetric_key_path + '\\key.txt'
+        with open(symmetric_file, 'wb') as key_file:
+            key_file.write(encrypted_symmetric_key)
         
