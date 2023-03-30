@@ -1,98 +1,54 @@
-# settings= {
-#     'initial_file':'path/to/inital/file.txt',
-#     'encrypted_file':'path/to/encrypted/file.txt',
-#     'decrypted_file':'path/to/decrypted/file.txt',
-#     'symmetric_key':'path/to/symmetric/key.txt',
-#     'public_key':'path/to/public/key.pem',
-#     'secret_key':'path/to/secret/key.pem',
-# }
+# ###1. Генерация ключей гибридной системы
+# *Входные параметры:*  
+# *1) путь, по которому сериализовать зашифрованный симметричный ключ;*  
+# *2) путь, по которому сериализовать открытый ключ;*  
+# *3) путь, по которому сериазизовать закрытый ключ.*
 
-# import json
-# # пишем в файл
-# with open('settings.json', 'w') as fp:
-#     json.dump(settings, fp)
-# # читаем из файла
-# with open('settings.json') as json_file:
-#     json_data = json.load(json_file)
+# 1.1. Сгеренировать ключ для симметричного алгоритма.  
+# 1.2. Сгенерировать ключи для ассиметричного алгоритма.  
+# 1.3. Сериализовать ассиметричные ключи.   
+# 1.4. Зашифровать ключ симметричного шифрования открытым ключом и сохранить по указанному пути. 
 
-# print(json_data)
+# ###2. Шифрование данных гибридной системой
+# *Входные параметры:*  
+# *1) путь к шифруемому текстовому файлу (очевидно, что файл должен быть достаточно объемным);*  
+# *2) путь к закрытому ключу ассиметричного алгоритма;*  
+# *3) путь к зашированному ключу симметричного алгоритма;*  
+# *4) путь, по которому сохранить зашифрованный текстовый файл;*  
 
-# import argparse
-# parser = argparse.ArgumentParser()
-# group = parser.add_mutually_exclusive_group(required = True)
-# group.add_argument('-gen','--generation',help='Запускает режим генерации ключей')
-# group.add_argument('-enc','--encryption',help='Запускает режим шифрования')
-# group.add_argument('-dec','--decryption',help='Запускает режим дешифрования')
+# 2.1. Расшифровать симметричный ключ.  
+# 2.2. Зашифровать текст симметричным алгоритмом и сохранить по указанному пути.   
 
-# args = parser.parse_args()
-# if args.generation is not None:
-#   # генерируем ключи
-#     else if args.encryption is not None:
-#   # шифруем
-#     else:
-#   # дешифруем
+# ###3. Дешифрование данных гибридной системой
+# *Входные парметры:*  
+# *1) путь к зашифрованному текстовому файлу;*  
+# *2) путь к закрытому ключу ассиметричного алгоритма;*  
+# *3) путь к зашированному ключу симметричного алгоритма;*  
+# *4) путь, по которому сохранить расшифрованный текстовый файл.*  
 
-#   # генерация ключа симметричного алгоритма шифрования
-# import os #можно обойтись стандартным модулем
-
-# key = os.urandom(32) # это байты
-
-# print(type(key))
-# print(key)
-
-# # генерация ключа симметричного алгоритма шифрования
-# import os #можно обойтись стандартным модулем
-
-# key = os.urandom(32) # это байты
-
-# print(type(key))
-# print(key)
-
-# # паддинг данных для работы блочного шифра - делаем длину сообщения кратной длине шифркуемого блока
-# from cryptography.hazmat.primitives import padding
-
-# padder = padding.ANSIX923(32).padder()
-# text = bytes('кто прочитал тот здохнет', 'UTF-8')
-# padded_text = padder.update(text)+padder.finalize()
-
-# print(text)
-# print(padded_text)
+# 3.1. Расшифровать симметричный ключ.  
+# 3.2. Расшифровать текст симметричным алгоритмом и сохранить по указанному пути. 
 
 
-# # шифрование текста симметричным алгоритмом
-# from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
-
-# iv = os.urandom(16) #случайное значение для инициализации блочного режима, должно быть размером с блок и каждый раз новым
-# cipher = Cipher(algorithms.AES(key), modes.CBC(iv))
-# encryptor = cipher.encryptor()
-# c_text = encryptor.update(padded_text) + encryptor.finalize()
-
-# print(c_text)
-
-# # дешифрование и депаддинг текста симметричным алгоритмом
-
-# decryptor = cipher.decryptor()
-# dc_text = decryptor.update(c_text) + decryptor.finalize()
-
-# unpadder = padding.ANSIX923(32).unpadder()
-# unpadded_dc_text = unpadder.update(dc_text) + unpadder.finalize()
-
-# print(dc_text.decode('UTF-8'))
-# print(unpadded_dc_text.decode('UTF-8'))
+import os
+from cryptography.hazmat.primitives.asymmetric import rsa
 
 
-# # генерация пары ключей для асимметричного алгоритма шифрования
-# from cryptography.hazmat.primitives.asymmetric import rsa
-# from cryptography.hazmat.primitives import serialization
 
-# keys = rsa.generate_private_key(
-#     public_exponent=65537,
-#     key_size=2048
-# )
-# private_key = keys
-# public_key = keys.public_key()
+def key_generation_func(symmetric_key_path: str, public_key_path: str, secret_key_path: str) -> None:
+    # :param symmetric_key_path:  путь, по которому сериализовать зашифрованный симметричный ключ
+    # :param public_key_path: путь, по которому сериализовать открытый ключ
+    # :param secret_key_path: путь, по которому сериализовать закрытый ключ
+    
+        # генерация ключа симметричного алгоритма шифрования
+        symmetric_key = os.urandom(16)
 
-# print(type(private_key))
-# print(private_key)
-# print(type(public_key))
-# print(public_key)
+        # генерация пары ключей для асимметричного алгоритма шифрования
+        keys = rsa.generate_private_key(
+            public_exponent=65537,
+            key_size=2048
+        )
+        private_key = keys
+        public_key = keys.public_key()
+
+        
