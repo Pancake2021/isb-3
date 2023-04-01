@@ -58,24 +58,39 @@ def key_generation_func(symmetric_key_path: str, public_key_path: str, secret_ke
         # сериализация открытого ключа в файл
         public_pem = public_key_path + '\\key.pem'
         with open(public_pem, 'wb') as public_out:
-            public_out.write(public_key.public_bytes(encoding=serialization.Encoding.PEM,
-                                                     format=serialization.PublicFormat.SubjectPublicKeyInfo))
+            public_out.write(public_key.public_bytes(encoding=serialization.Encoding.PEM, format=serialization.PublicFormat.SubjectPublicKeyInfo))
 
         # сериализация закрытого ключа в файл
         private_pem = secret_key_path + '\\key.pem'
         with open(private_pem, 'wb') as private_out:
-            private_out.write(private_key.private_bytes(encoding=serialization.Encoding.PEM,
-                                                        format=serialization.PrivateFormat.TraditionalOpenSSL,
-                                                        encryption_algorithm=serialization.NoEncryption()))
+            private_out.write(private_key.private_bytes(encoding=serialization.Encoding.PEM,format=serialization.PrivateFormat.TraditionalOpenSSL,encryption_algorithm=serialization.NoEncryption()))
         
         # шифрование симметричного ключа открытым ключом при помощи RSA-OAEP
-        encrypted_symmetric_key = public_key.encrypt(symmetric_key,
-                                                    padding.OAEP(mgf=padding.MGF1(algorithm=hashes.SHA256()),
-                                                                algorithm=hashes.SHA256(),
-                                                                label=None))
+        encrypted_symmetric_key = public_key.encrypt(symmetric_key, padding.OAEP(mgf=padding.MGF1(algorithm=hashes.SHA256()), algorithm=hashes.SHA256(),label=None))
         
         # сериализация ключа симмеричного алгоритма в файл
         symmetric_file = symmetric_key_path + '\\key.txt'
         with open(symmetric_file, 'wb') as key_file:
             key_file.write(encrypted_symmetric_key)
-        
+
+
+def encrypt_data(initial_file_path: str, secret_key_path: str, symmetric_key_path: str, encrypted_file_path: str) -> None:
+    # :param initial_file_path: путь к шифруемому текстовому файлу
+    # :param secret_key_path: путь к закрытому ключу ассиметричного алгоритма
+    # :param symmetric_key_path: путь к зашифрованному ключу симметричного алгоритма
+    # :param encrypted_file_path: путь, по которому сохранить зашифрованный текстовый файл
+   
+
+    # десериализация ключа симметричного алгоритма
+    symmetric_file = symmetric_key_path + '\\key.txt'
+    with open(symmetric_file, mode='rb') as key_file:
+        encrypted_symmetric_key = key_file.read()
+
+    # десериализация закрытого ключа
+    private_pem = secret_key_path + '\\key.pem'
+    with open(private_pem, 'rb') as pem_in:
+        private_bytes = pem_in.read()
+    private_key = load_pem_private_key(private_bytes, password=None)
+
+     # дешифрование симметричного ключа асимметричным алгоритмом
+    d_symmetric_key = private_key.decrypt(encrypted_symmetric_key, padding.OAEP(mgf=padding.MGF1(algorithm=hashes.SHA256()), algorithm=hashes.SHA256(), label=None))
