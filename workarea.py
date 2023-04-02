@@ -37,7 +37,7 @@ from cryptography.hazmat.primitives.asymmetric import padding
 from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.serialization import load_pem_private_key
 from cryptography.hazmat.primitives import padding as padding2
-#import yaml
+import yaml
 
 
 
@@ -113,3 +113,10 @@ def encrypt_data(initial_file_path: str, secret_key_path: str, symmetric_key_pat
     cipher = Cipher(algorithms.IDEA(d_symmetric_key), modes.CBC(iv))
     encryptor = cipher.encryptor()
     c_text = encryptor.update(padded_text) + encryptor.finalize()
+
+    # зашифрованный текст хранится в виде словаря, где под ключом 'text' хранится сам зашифрованный текст,
+    # a 'iv' is a random value for block mode initialization, which is needed for text decoding
+    dict_t = {'text': c_text, 'iv': iv}
+    encrypted_file = encrypted_file_path + '\\file.yaml'
+    with open(encrypted_file, 'w') as _file:
+        yaml.dump(dict_t, _file)
