@@ -107,4 +107,9 @@ def encrypt_data(initial_file_path: str, secret_key_path: str, symmetric_key_pat
     text = bytes(initial_content, 'UTF-8')
     padded_text = padder.update(text) + padder.finalize()
 
-    
+    # шифрование текста симметричным алгоритмом
+     # iv - random value for block mode initialization, must be the size of a block and new each time
+    iv = os.urandom(8)
+    cipher = Cipher(algorithms.IDEA(d_symmetric_key), modes.CBC(iv))
+    encryptor = cipher.encryptor()
+    c_text = encryptor.update(padded_text) + encryptor.finalize()
