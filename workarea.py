@@ -29,12 +29,16 @@
 # 3.1. Расшифровать симметричный ключ.  
 # 3.2. Расшифровать текст симметричным алгоритмом и сохранить по указанному пути. 
 
-
+#import argparse
 import os
 from cryptography.hazmat.primitives.asymmetric import rsa
 from cryptography.hazmat.primitives import serialization
 from cryptography.hazmat.primitives.asymmetric import padding
 from cryptography.hazmat.primitives import hashes
+from cryptography.hazmat.primitives.serialization import load_pem_private_key
+from cryptography.hazmat.primitives import padding as padding2
+#import yaml
+
 
 
 
@@ -94,3 +98,13 @@ def encrypt_data(initial_file_path: str, secret_key_path: str, symmetric_key_pat
 
      # дешифрование симметричного ключа асимметричным алгоритмом
     d_symmetric_key = private_key.decrypt(encrypted_symmetric_key, padding.OAEP(mgf=padding.MGF1(algorithm=hashes.SHA256()), algorithm=hashes.SHA256(), label=None))
+
+     # паддинг данных для работы блочного шифра (делаем длину сообщения кратной длине шифруемого блока (64 бита))
+    initial_file = initial_file_path + '\\text.txt'
+    with open(initial_file, 'r') as _file:
+        initial_content = _file.read()
+    padder = padding2.ANSIX923(64).padder()
+    text = bytes(initial_content, 'UTF-8')
+    padded_text = padder.update(text) + padder.finalize()
+
+    
