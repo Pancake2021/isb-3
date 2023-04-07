@@ -2,8 +2,8 @@ import os
 from cryptography.hazmat.primitives.asymmetric import padding
 from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.serialization import load_pem_private_key
-from cryptography.hazmat.primitives import padding as padding2
-import yaml
+from Task1 import
+
 
 
 
@@ -23,3 +23,12 @@ def decrypting_data(encrypted_file_path: str, secret_key_path: str, symmetric_ke
     symmetric_file = symmetric_key_path + '\\key.txt'
     with open(symmetric_file, mode='rb') as key_file:
         encrypted_symmetric_key = key_file.read()
+
+    # десериализация закрытого ключа
+    private_pem = secret_key_path + '\\key.pem'
+    with open(private_pem, 'rb') as pem_in:
+        private_bytes = pem_in.read()
+    private_key = load_pem_private_key(private_bytes, password=None)
+
+    # дешифрование симметричного ключа асимметричным алгоритмом
+    dsymmetric_key = private_key.decrypt(encrypted_symmetric_key, padding.OAEP(mgf=padding.MGF1(algorithm=hashes.SHA256()), algorithm=hashes.SHA256(), label=None))

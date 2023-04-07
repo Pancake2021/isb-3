@@ -4,6 +4,7 @@ from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.serialization import load_pem_private_key
 from cryptography.hazmat.primitives import padding as padding2
 import yaml
+from Task1 import key_generation_func
 
 def encrypt_data(initial_file_path: str, secret_key_path: str, symmetric_key_path: str, encrypted_file_path: str) -> None:
     # :param initial_file_path: путь к шифруемому текстовому файлу
