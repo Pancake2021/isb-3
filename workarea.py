@@ -29,6 +29,20 @@
 # 3.1. Расшифровать симметричный ключ.  
 # 3.2. Расшифровать текст симметричным алгоритмом и сохранить по указанному пути. 
 
+
+
+#argpass или графисечкий интерфейс 
+#декомпозиция кода 
+#(аля введите D чтобы дешифровать не подхдит)
+# unit test сделать // c гихаюа юнит тест пайт тест теск дискавери (впечатиолиьь работататделатся)
+# CA CD github
+#на след лабе 4 обьяснят (к концу апреля)
+#колизия и хэш
+#что за алгоритм шифрования по варианту??? (для чего, где нужен, какой ключ, блочный или поточный,скомпрометрирован или нет насколько он старый)
+#все по разному попытаться
+#
+
+
 #import argparse
 import os
 from cryptography.hazmat.primitives.asymmetric import rsa
@@ -41,82 +55,3 @@ import yaml
 
 
 
-
-def key_generation_func(symmetric_key_path: str, public_key_path: str, secret_key_path: str) -> None:
-    # :param symmetric_key_path:  путь, по которому сериализовать зашифрованный симметричный ключ
-    # :param public_key_path: путь, по которому сериализовать открытый ключ
-    # :param secret_key_path: путь, по которому сериализовать закрытый ключ
-    
-        # генерация ключа симметричного алгоритма шифрования
-        symmetric_key = os.urandom(16)
-
-        # генерация пары ключей для асимметричного алгоритма шифрования
-        keys = rsa.generate_private_key(
-            public_exponent=65537,
-            key_size=2048
-        )
-        private_key = keys
-        public_key = keys.public_key()
-
-        
-        # сериализация открытого ключа в файл
-        public_pem = public_key_path + '\\key.pem'
-        with open(public_pem, 'wb') as public_out:
-            public_out.write(public_key.public_bytes(encoding=serialization.Encoding.PEM, format=serialization.PublicFormat.SubjectPublicKeyInfo))
-
-        # сериализация закрытого ключа в файл
-        private_pem = secret_key_path + '\\key.pem'
-        with open(private_pem, 'wb') as private_out:
-            private_out.write(private_key.private_bytes(encoding=serialization.Encoding.PEM,format=serialization.PrivateFormat.TraditionalOpenSSL,encryption_algorithm=serialization.NoEncryption()))
-        
-        # шифрование симметричного ключа открытым ключом при помощи RSA-OAEP
-        encrypted_symmetric_key = public_key.encrypt(symmetric_key, padding.OAEP(mgf=padding.MGF1(algorithm=hashes.SHA256()), algorithm=hashes.SHA256(),label=None))
-        
-        # сериализация ключа симмеричного алгоритма в файл
-        symmetric_file = symmetric_key_path + '\\key.txt'
-        with open(symmetric_file, 'wb') as key_file:
-            key_file.write(encrypted_symmetric_key)
-
-
-def encrypt_data(initial_file_path: str, secret_key_path: str, symmetric_key_path: str, encrypted_file_path: str) -> None:
-    # :param initial_file_path: путь к шифруемому текстовому файлу
-    # :param secret_key_path: путь к закрытому ключу ассиметричного алгоритма
-    # :param symmetric_key_path: путь к зашифрованному ключу симметричного алгоритма
-    # :param encrypted_file_path: путь, по которому сохранить зашифрованный текстовый файл
-   
-
-    # десериализация ключа симметричного алгоритма
-    symmetric_file = symmetric_key_path + '\\key.txt'
-    with open(symmetric_file, mode='rb') as key_file:
-        encrypted_symmetric_key = key_file.read()
-
-    # десериализация закрытого ключа
-    private_pem = secret_key_path + '\\key.pem'
-    with open(private_pem, 'rb') as pem_in:
-        private_bytes = pem_in.read()
-    private_key = load_pem_private_key(private_bytes, password=None)
-
-     # дешифрование симметричного ключа асимметричным алгоритмом
-    d_symmetric_key = private_key.decrypt(encrypted_symmetric_key, padding.OAEP(mgf=padding.MGF1(algorithm=hashes.SHA256()), algorithm=hashes.SHA256(), label=None))
-
-     # паддинг данных для работы блочного шифра (делаем длину сообщения кратной длине шифруемого блока (64 бита))
-    initial_file = initial_file_path + '\\text.txt'
-    with open(initial_file, 'r') as _file:
-        initial_content = _file.read()
-    padder = padding2.ANSIX923(64).padder()
-    text = bytes(initial_content, 'UTF-8')
-    padded_text = padder.update(text) + padder.finalize()
-
-    # шифрование текста симметричным алгоритмом
-     # iv - random value for block mode initialization, must be the size of a block and new each time
-    iv = os.urandom(8)
-    cipher = Cipher(algorithms.IDEA(d_symmetric_key), modes.CBC(iv))
-    encryptor = cipher.encryptor()
-    c_text = encryptor.update(padded_text) + encryptor.finalize()
-
-    # зашифрованный текст хранится в виде словаря, где под ключом 'text' хранится сам зашифрованный текст,
-    # a 'iv' is a random value for block mode initialization, which is needed for text decoding
-    dict_t = {'text': c_text, 'iv': iv}
-    encrypted_file = encrypted_file_path + '\\file.yaml'
-    with open(encrypted_file, 'w') as _file:
-        yaml.dump(dict_t, _file)
