@@ -1,8 +1,11 @@
 import os
+import argparse
 from cryptography.hazmat.primitives.asymmetric import rsa
 from cryptography.hazmat.primitives import serialization
 from cryptography.hazmat.primitives.asymmetric import padding
 from cryptography.hazmat.primitives import hashes
+
+
 
 def key_generation_func(symmetric_key_path: str, public_key_path: str, secret_key_path: str) -> None:
     # :param symmetric_key_path:  путь, по которому сериализовать зашифрованный симметричный ключ
@@ -38,3 +41,6 @@ def key_generation_func(symmetric_key_path: str, public_key_path: str, secret_ke
         symmetric_file = symmetric_key_path + '\\key.txt'
         with open(symmetric_file, 'wb') as key_file:
             key_file.write(encrypted_symmetric_key)
+
+def run1(symmetric_key_path: str, public_key_path: str, secret_key_path: str) -> None:
+    key_generation_func(symmetric_key_path, public_key_path, secret_key_path)

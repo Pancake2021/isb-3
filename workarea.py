@@ -43,15 +43,70 @@
 #
 
 
-#import argparse
-import os
-from cryptography.hazmat.primitives.asymmetric import rsa
-from cryptography.hazmat.primitives import serialization
-from cryptography.hazmat.primitives.asymmetric import padding
-from cryptography.hazmat.primitives import hashes
-from cryptography.hazmat.primitives.serialization import load_pem_private_key
-from cryptography.hazmat.primitives import padding as padding2
+import argparse
+from tqdm import tqdm
+tqdm.pandas()
+from Task1 import run1
+from Task2 import run2
+from Task3 import run3
+
+# from tqdm import tqdm
+# from tqdm.notebook import tqdm_notebook
 import yaml
 
 
+if __name__ == "__workarea__":
+    run1()
+    run2()
+    run3()
+
+
+parser = argparse.ArgumentParser(description="main")
+group = parser.add_mutually_exclusive_group(required=True)
+group.add_argument('-gen', '--generation', help='Запускает режим генерации ключей')
+group.add_argument('-enc', '--encryption', help='Запускает режим шифрования')
+group.add_argument('-dec', '--decryption', help='Запускает режим дешифрования')
+parser.add_argument('-symkey',
+                    type=str,
+                    help='Это обязательный строковый позиционный аргумент,'
+                         'который указывает, путь к папке, в которую сериализуется зашифрованный симметричный ключ',
+                    dest='symmetric_key_path')
+parser.add_argument('-pubkey',
+                    type=str,
+                    help='Это обязательный строковый позиционный аргумент,'
+                         'который указывает, путь к папке, в которую сериализуется открытый ключ',
+                    dest='public_key_path')
+parser.add_argument('-seckey',
+                    type=str,
+                    help='Это обязательный строковый позиционный аргумент,'
+                         'который указывает, путь к папке, в которую сериализуется закрытый ключ',
+                    dest='secret_key_path')
+parser.add_argument('-initial',
+                    type=str,
+                    help='Это обязательный строковый позиционный аргумент,'
+                         'который указывает, путь к папке, в которой хранится начальный файл',
+                    dest='initial_file_path')
+parser.add_argument('-encrypted',
+                    type=str,
+                    help='Это обязательный строковый позиционный аргумент,'
+                         'который указывает, путь к папке, в которую сохраняется шифрованный файл',
+                    dest='encrypted_file_path')
+parser.add_argument('-dencrypted',
+                    type=str,
+                    help='Это обязательный строковый позиционный аргумент,'
+                         'который указывает, путь к папке, в которую сохраняется дешифрованный файл',
+                    dest='decrypted_file_path')
+args = parser.parse_args()
+
+if args.generation:
+    key_generation(args.symmetric_key_path, args.public_key_path, args.secret_key_path)
+if args.encryption:
+    with tqdm(100, desc='Encryption mode') as prograssbar:
+        encrypt_data(args.initial_file_path, args.secret_key_path, args.symmetric_key_path, args.encrypted_file_path)
+        prograssbar.update(100)
+if args.decryption:
+    with tqdm(100, desc='Decryption mode') as prograssbar:
+        decrypting_data(args.encrypted_file_path, args.secret_key_path, args.symmetric_key_path,
+                        args.decrypted_file_path)
+        prograssbar.update(100)
 

@@ -1,10 +1,13 @@
 import os
+import argparse
+#import algorithms
 from cryptography.hazmat.primitives.asymmetric import padding
+from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.serialization import load_pem_private_key
 from cryptography.hazmat.primitives import padding as padding2
 import yaml
-from Task1 import key_generation_func
+from Task1 import run1
 
 def encrypt_data(initial_file_path: str, secret_key_path: str, symmetric_key_path: str, encrypted_file_path: str) -> None:
     # :param initial_file_path: путь к шифруемому текстовому файлу
@@ -48,3 +51,6 @@ def encrypt_data(initial_file_path: str, secret_key_path: str, symmetric_key_pat
     encrypted_file = encrypted_file_path + '\\file.yaml'
     with open(encrypted_file, 'w') as _file:
         yaml.dump(dict_t, _file)
+
+def run2(initial_file_path: str, secret_key_path: str, symmetric_key_path: str, encrypted_file_path: str) -> None:
+    encrypt_data(initial_file_path, secret_key_path, symmetric_key_path, encrypted_file_path)

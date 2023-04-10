@@ -1,8 +1,12 @@
-
+import argparse
+from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 from cryptography.hazmat.primitives.asymmetric import padding
 from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.serialization import load_pem_private_key
+from cryptography.hazmat.primitives import padding as padding2
 import yaml
+from Task1 import run1
+from Task2 import run2
 #from Task1 import
 
 
@@ -53,3 +57,6 @@ def decrypting_data(encrypted_file_path: str, secret_key_path: str, symmetric_ke
     decrypted_file = decrypted_file_path + '\\file.txt'
     with open(decrypted_file, 'w') as _file:
         _file.write(str(unpadded_dc_text))
+
+def run3 (encrypted_file_path: str, secret_key_path: str, symmetric_key_path: str, decrypted_file_path: str) -> None:
+    decrypting_data(encrypted_file_path, secret_key_path, symmetric_key_path, decrypted_file_path) 
