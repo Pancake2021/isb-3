@@ -47,8 +47,11 @@ import argparse
 from tqdm import tqdm
 tqdm.pandas()
 from Task1 import run1
+from Task1 import key_generation_func
 from Task2 import run2
+from Task2 import encrypt_data
 from Task3 import run3
+from Task3 import decrypting_data
 
 # from tqdm import tqdm
 # from tqdm.notebook import tqdm_notebook
@@ -99,7 +102,7 @@ parser.add_argument('-dencrypted',
 args = parser.parse_args()
 
 if args.generation:
-    key_generation(args.symmetric_key_path, args.public_key_path, args.secret_key_path)
+    key_generation_func(args.symmetric_key_path, args.public_key_path, args.secret_key_path)
 if args.encryption:
     with tqdm(100, desc='Encryption mode') as prograssbar:
         encrypt_data(args.initial_file_path, args.secret_key_path, args.symmetric_key_path, args.encrypted_file_path)
